@@ -3,7 +3,7 @@
 all: main
 
 main: main.go
-	go get main.go
+	go get go.mod
 	go build -o main main.go
 
 clean:
