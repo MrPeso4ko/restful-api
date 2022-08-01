@@ -100,13 +100,17 @@ func checkDiploma(c *gin.Context) {
 
 func main() {
 	router := gin.Default()
+	err := router.SetTrustedProxies(nil)
+	if err != nil {
+		return
+	}
 	router.GET("/diploma/list", getDiplomas)
 	router.POST("/diploma/list", addDiplomas)
 	router.DELETE("/diploma/list", removeDiploma)
 
 	router.GET("/diploma/check/:id", checkDiploma)
 
-	err := router.Run(":8080")
+	err = router.Run(":8080")
 	if err != nil {
 		return
 	}
