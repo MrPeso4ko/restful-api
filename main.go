@@ -42,7 +42,15 @@ func addDiplomas(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	n := len(diplomas)
+	n := len(newDiplomas)
+	for i := 0; i < len(newDiplomas); i++ {
+		if diplomasId[newDiplomas[i].Id] != nil {
+			newDiplomas[i], newDiplomas[n-1] = newDiplomas[n-1], newDiplomas[i]
+			n--
+		}
+	}
+	newDiplomas = newDiplomas[:n]
+	n = len(diplomas)
 	diplomas = append(diplomas, newDiplomas...)
 	for i := 0; i < len(newDiplomas); i++ {
 		diplomasId[newDiplomas[i].Id] = &diplomas[n+i]
@@ -77,11 +85,26 @@ func removeDiploma(c *gin.Context) {
 	c.Data(http.StatusOK, "text/plain", []byte("Diploma deleted"))
 }
 
+func checkDiploma(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	if diplomasId[id] != nil {
+		c.IndentedJSON(http.StatusOK, diplomasId[id])
+	} else {
+		c.IndentedJSON(http.StatusNotFound, []Diploma{})
+	}
+}
+
 func main() {
 	router := gin.Default()
 	router.GET("/diploma/list", getDiplomas)
 	router.POST("/diploma/list", addDiplomas)
 	router.DELETE("/diploma/list", removeDiploma)
+
+	router.GET("/diploma/check/:id", checkDiploma)
 
 	err := router.Run(":8080")
 	if err != nil {
